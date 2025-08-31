@@ -10,6 +10,7 @@ public class Coin : MonoBehaviour
 
     [Header("Renderer")]
     public Renderer coinRenderer;
+    public TrailRenderer coinTrailRenderer;
 
     [Header("Text Display")]
     public TextMeshPro valueText;
@@ -28,6 +29,13 @@ public class Coin : MonoBehaviour
         {
             coinRenderer.material = new Material(coinRenderer.material);
             coinRenderer.material.color = color;
+        }
+
+        // Update trail color
+        if (coinTrailRenderer != null)
+        {
+            coinTrailRenderer.material = new Material(coinTrailRenderer.material);
+            coinTrailRenderer.material.color = color;
         }
 
         // Update value text
