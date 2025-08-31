@@ -5302,7 +5302,7 @@ MonoBehaviour:
   autoMatchMoveDuration: 0.4
   autoMatchJumpPower: 6
   autoMatchEase: 20
-  debugLevelIndex: 4
+  debugLevelIndex: -1
 --- !u!4 &1032273594
 Transform:
   m_ObjectHideFlags: 0
@@ -5352,7 +5352,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -0.000015259, y: -440.3}
+  m_AnchoredPosition: {x: -0.000015259, y: -440.30078}
   m_SizeDelta: {x: 832.6609, y: 129.2976}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1035035937
@@ -6256,13 +6256,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74d6e8d5eeb04e1498de837e4a6cbb1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelManager: {fileID: 1032273593}
   gridAndCoinGenerator: {fileID: 1382375983}
+  effectsManager: {fileID: 1766097976}
   moveDuration: 0.5
   jumpPower: 6
   mergeYOffset: 2
   groupSameTypes: 1
   maxCapacity: 9
-  levelManager: {fileID: 1032273593}
   mergeRules:
   - inputType: 0
     requiredCount: 2
@@ -7534,6 +7535,51 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756811192}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1766097975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1766097977}
+  - component: {fileID: 1766097976}
+  m_Layer: 0
+  m_Name: EffectsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1766097976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766097975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81068b400332b7240bdb1011dc42ab1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mergeEffect: {fileID: 19800010, guid: ef3af0abebed5804bba052fb3acbde76, type: 3}
+--- !u!4 &1766097977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766097975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 30.678917, y: -1.6882083, z: 22.83861}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1802206599
 GameObject:
   m_ObjectHideFlags: 0
@@ -9091,8 +9137,10 @@ MonoBehaviour:
   coinPrefabUI: {fileID: 6498716754742205456, guid: bb56836b14fd64849bd601b67b726cca,
     type: 3}
   targetUI: {fileID: 373444762}
+  spawnArea: {fileID: 736055492}
+  spawnRadius: 2
   coinsToSpawn: 10
-  animationDuration: 0.8
+  animationDuration: 0.5
   spawnInterval: 0.1
   coinSound: {fileID: 0}
   audioSource: {fileID: 0}
@@ -9567,6 +9615,7 @@ SceneRoots:
   - {fileID: 866960730}
   - {fileID: 126525874}
   - {fileID: 1636929703}
+  - {fileID: 1766097977}
   - {fileID: 1382375982}
   - {fileID: 744304752}
   - {fileID: 1060880049}

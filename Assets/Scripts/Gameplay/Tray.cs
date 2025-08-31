@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Lean.Pool;
 
 [System.Serializable]
 public struct MergeRule
@@ -12,7 +13,10 @@ public struct MergeRule
 
 public class Tray : MonoBehaviour
 {
+    [Tooltip("Reference to LevelManager for auto-matching")]
+    public LevelManager levelManager;
     public GridAndCoinGenerator gridAndCoinGenerator;
+    public EffectsManager effectsManager;
     private List<Coin> coins = new List<Coin>();
     public IReadOnlyList<Coin> Coins => coins; // Read-only access
 
@@ -31,8 +35,6 @@ public class Tray : MonoBehaviour
     [Header("Tray Capacity")]
     [Tooltip("Maximum number of coins the tray can hold")]
     public int maxCapacity = 10;
-    [Tooltip("Reference to LevelManager for auto-matching")]
-    public LevelManager levelManager;
 
     private HorizontalLayout3D layout; // cache layout reference
     
@@ -373,6 +375,8 @@ public class Tray : MonoBehaviour
                             levelManager?.UnregisterCoin();
                         }
 
+                        ParticleSystem effect = LeanPool.Spawn(effectsManager.mergeEffect, mergedCoin.transform.position, Quaternion.identity);
+                        Destroy(effect.gameObject, effect.main.duration);
                         // Show the merged coin with a pop animation
                         mergedCoin.transform.DOScale(Vector3.one, 0.3f)
                             .SetEase(Ease.OutBack)

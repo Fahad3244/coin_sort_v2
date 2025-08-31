@@ -18,6 +18,8 @@ public class WinUi : MonoBehaviour
     [Header("Coin Animation Settings")]
     public GameObject coinPrefabUI;       // prefab for coin
     public RectTransform targetUI;        // coin target in HUD
+    [SerializeField] private RectTransform spawnArea; // assign a UI panel/rect for spawn area
+    [SerializeField] private float spawnRadius = 50f;   // how close coins spawn together
     public int coinsToSpawn = 10;         // number of coins animated
     public float animationDuration = 0.8f;
     public float spawnInterval = 0.1f;
@@ -51,37 +53,38 @@ public class WinUi : MonoBehaviour
         StartCoroutine(PlayCoinCollectAnimation());
     }
 
-    private IEnumerator PlayCoinCollectAnimation()
+private IEnumerator PlayCoinCollectAnimation()
 {
     float perCoinValue = moneyToAdd / coinsToSpawn;
+    GameObject[] coinObjects = new GameObject[coinsToSpawn];
 
+    Vector3 centerPos = spawnArea.position; // center of spawn area in world space
+
+    // 🔹 Step 1: Spawn all coins in close cluster
     for (int i = 0; i < coinsToSpawn; i++)
     {
-        GameObject coinObj = Instantiate(coinPrefabUI, this.transform); // parent under Canvas
+        GameObject coinObj = Instantiate(coinPrefabUI, this.transform);
         RectTransform coinRect = coinObj.GetComponent<RectTransform>();
+        coinObjects[i] = coinObj;
 
-        // pick random screen position
-        Vector3 randomScreenPos = new Vector3(
-            Random.Range(0f, Screen.width),
-            Random.Range(0f, Screen.height),
-            0f
-        );
+        // random offset inside a circle (tight cluster)
+        Vector2 offset = Random.insideUnitCircle * spawnRadius;
+        coinRect.position = centerPos + (Vector3)offset;
 
-        // convert to world point
-        Vector3 spawnPos;
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(
-            this.GetComponent<Canvas>().transform as RectTransform,
-            randomScreenPos,
-            this.GetComponent<Canvas>().worldCamera,
-            out spawnPos
-        );
+        // start tiny, scale pop-in
+        coinRect.localScale = Vector3.zero;
+        coinRect.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack);
 
-        coinRect.position = spawnPos;
+        coinObj.SetActive(true);
+    }
 
-        // is this the last coin?
+    // 🔹 Step 2: Animate coins one by one to target
+    for (int i = 0; i < coinsToSpawn; i++)
+    {
+        GameObject coinObj = coinObjects[i];
+        RectTransform coinRect = coinObj.GetComponent<RectTransform>();
         bool isLast = (i == coinsToSpawn - 1);
 
-        // animate to target
         coinRect.DOMove(targetUI.position, animationDuration)
             .SetEase(Ease.InOutQuad)
             .OnComplete(() =>
@@ -96,16 +99,15 @@ public class WinUi : MonoBehaviour
                 if (coinSound != null && audioSource != null)
                     audioSource.PlayOneShot(coinSound);
 
-                // if last coin, call your function
                 if (isLast)
-                {
                     OnCoinsAnimationFinished();
-                }
             });
 
-        yield return new WaitForSeconds(spawnInterval);
+        yield return new WaitForSeconds(spawnInterval); // delay between launches
     }
 }
+
+
 
     private void OnCoinsAnimationFinished()
     {
