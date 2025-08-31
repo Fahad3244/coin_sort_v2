@@ -94,6 +94,7 @@ public class GridAndCoinGenerator : MonoBehaviour
                 {
                     coinComponent.SetupCoin(
                         coin.type,
+                        coin.variant,
                         GetCoinValue(coin.type),
                         GetCoinColor(coin.type)
                     );

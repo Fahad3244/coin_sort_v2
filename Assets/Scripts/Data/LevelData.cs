@@ -7,7 +7,8 @@ public enum CoinVariant
     Normal,
     Mystery,
     Nailed,
-    Locked
+    Locked,
+    keyCoin
     // Add more variants here as needed
 }
 

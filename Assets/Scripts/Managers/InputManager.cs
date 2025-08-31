@@ -25,21 +25,28 @@ public class InputManager : MonoBehaviour
                 Coin coin = hit.collider.GetComponentInParent<Coin>();
                 if (coin != null)
                 {
-                    TryMoveCoinToSlot(coin);
+                    TryMoveCoin(coin);
                     UiManager.instance.DisableTutorial();
                 }
             }
         }
     }
 
-    private void TryMoveCoinToSlot(Coin coin)
+    private void TryMoveCoin(Coin coin)
     {
         bool matched = false;
+
+        coin.CheckAndEnableCoinBelow();
 
         // Loop through all active slots
         for (int i = 0; i < levelManager.currentLevel.slotTypes.Count; i++)
         {
             if (levelManager.slots[i] == null) continue;
+
+            if (coin.variant == CoinVariant.Mystery)
+            {
+                coin.RevealMystery();
+            }
 
             if (coin.type == (CoinType)levelManager.slots[i].type)
             {
@@ -53,6 +60,8 @@ public class InputManager : MonoBehaviour
         {
             MoveCoinToTray(coin);
         }
+        
+        coin.CheckForSpecialBehaviorOnCoinMove();
     }
 
 
