@@ -32,6 +32,8 @@ public class HorizontalLayout3D : MonoBehaviour
     [Header("Animation")]
     [Tooltip("If true, children will smoothly animate into position. If false, they will snap instantly.")]
     public bool animateChildren = true;
+    [Tooltip("If true, existing coins will always animate when shifting positions (overrides animateChildren for shifts).")]
+    public bool alwaysAnimateShifts = true;
     [Tooltip("Units per second. Set 0 for instant snap in Play Mode.")]
     public float moveSpeed = 5f;
     [Tooltip("Where newly added/enabled children start animating from.")]
@@ -51,6 +53,7 @@ public class HorizontalLayout3D : MonoBehaviour
     private readonly List<Transform> _validChildren = new List<Transform>();
     private int _lastStateHash = 0;
     private int _pendingCoinsCount = 0; // Track coins that are animating to this layout
+    private bool _isShiftingForInsertion = false; // Track if we're currently shifting for new coin insertion
 
     private void OnEnable() { ForceRebuild(); }
     private void OnValidate() { ForceRebuild(); }
@@ -67,14 +70,32 @@ public class HorizontalLayout3D : MonoBehaviour
                 _lastStateHash = state;
             }
 
-            if (animateChildren && moveSpeed > 0f)
+            // Animate if either animateChildren is true OR we're shifting for insertion and alwaysAnimateShifts is true
+            bool shouldAnimate = (animateChildren || (_isShiftingForInsertion && alwaysAnimateShifts)) && moveSpeed > 0f;
+            
+            if (shouldAnimate)
             {
                 float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+                bool anyMoving = false;
+                
                 foreach (var kv in _targets)
                 {
                     Transform t = kv.Key;
                     if (!t) continue;
+                    
+                    Vector3 oldPos = t.localPosition;
                     t.localPosition = Vector3.MoveTowards(t.localPosition, kv.Value, moveSpeed * dt);
+                    
+                    if (Vector3.Distance(t.localPosition, kv.Value) > 0.01f)
+                    {
+                        anyMoving = true;
+                    }
+                }
+                
+                // If no coins are moving, we're done shifting
+                if (!anyMoving)
+                {
+                    _isShiftingForInsertion = false;
                 }
             }
         }
@@ -88,6 +109,7 @@ public class HorizontalLayout3D : MonoBehaviour
         if (_pendingCoinsCount != count)
         {
             _pendingCoinsCount = count;
+            _isShiftingForInsertion = true; // Mark that we're shifting for insertion
             ForceRebuild(); // Rebuild when pending count changes
         }
     }
@@ -152,14 +174,17 @@ public class HorizontalLayout3D : MonoBehaviour
             if (controlScale) child.localScale = transform.localScale;
 
             // --- SNAP or ANIMATE ---
-            if (!Application.isPlaying || !animateChildren || moveSpeed <= 0f)
+            bool shouldAnimateEntry = animateChildren && Application.isPlaying && moveSpeed > 0f;
+            bool shouldAnimateShift = alwaysAnimateShifts && Application.isPlaying && moveSpeed > 0f && _isShiftingForInsertion;
+            
+            if (!Application.isPlaying || (!shouldAnimateEntry && !shouldAnimateShift))
             {
                 // always snap instantly in Edit Mode or when animation disabled
                 child.localPosition = target;
             }
-            else if (newlyAppeared.Contains(child))
+            else if (newlyAppeared.Contains(child) && shouldAnimateEntry)
             {
-                // only offset new children if animating
+                // only offset new children if animating entries
                 Vector3 entryPos = ComputeEntryPosition(entryOrigin, dir, startOffset, contentLength);
                 child.localPosition = entryPos;
             }

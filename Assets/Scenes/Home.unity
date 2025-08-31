@@ -5249,7 +5249,7 @@ MonoBehaviour:
   controlRotation: 0
   controlScale: 1
   animateChildren: 0
-  moveSpeed: 5
+  moveSpeed: 10
   entryOrigin: 0
   customEntryLocalOffset: {x: 0, y: 0, z: 0}
   useUnscaledTime: 0
@@ -5289,7 +5289,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 03b91ae75f6db3f44b504d273715b341, type: 2}
   - {fileID: 11400000, guid: d3a043e93a893224ba8ca1d0871db5cb, type: 2}
   - {fileID: 11400000, guid: fe6b0300965fc1a41acfa10f47372910, type: 2}
-  - {fileID: 11400000, guid: 9912abd7e4553d646a56e45cef977585, type: 2}
   currentLevel: {fileID: 11400000, guid: a834c340e71afa0478eeccb4ea63a011, type: 2}
   slots:
   - {fileID: 1888140550}
