@@ -1,29 +1,33 @@
+// Integration with GridAndCoinGenerator
 using System.Collections.Generic;
-using TMPro;
+using DG.Tweening;
 using UnityEngine;
 
 public class GridAndCoinGenerator : MonoBehaviour
 {
     public LevelManager levelManager;
+    
     [Header("Level Data")]
     private LevelData levelData;
 
     [Header("Prefabs")]
     public GameObject cellPrefab;
-    public GameObject coinPrefab;   // 7 prefabs in order of CoinType enum
+    public GameObject coinPrefab;
 
     [Header("Parent Transforms")]
     public Transform cellsParent;
     public Transform coinsParent;
 
     [Header("Coin Placement")]
-    public float firstCoinOffsetY = 0.5f;   // lift first coin above cell
-    public float stackOffsetY = 0.3f;       // distance between stacked coins
+    public float firstCoinOffsetY = 0.5f;
+    public float stackOffsetY = 0.3f;
 
-    [Header("Coin Colors (match CoinType order)")]
-    public Color[] coinColors; // Define colors in inspector for each CoinType
+    [Header("Coin Colors")]
+    public Color[] coinColors;
 
-    // quick lookup for coin spawning
+    [Header("Stack Monitor")]
+    public StackMonitor stackMonitor; // 🎯 Reference to StackMonitor
+
     private Dictionary<Vector2Int, Transform> cellLookup = new Dictionary<Vector2Int, Transform>();
 
     private void Start()
@@ -37,8 +41,29 @@ public class GridAndCoinGenerator : MonoBehaviour
 
         GenerateGrid();
         GenerateCoins();
+        
+        // 🎯 Initialize stack monitor AFTER generating coins
+        InitializeStackMonitor();
     }
 
+    private void InitializeStackMonitor()
+    {
+        if (stackMonitor != null)
+        {
+            Debug.Log("Initializing StackMonitor...");
+            stackMonitor.Initialize(levelData);
+            
+            // Optional: Do some initial debugging
+            stackMonitor.DebugPrintAllStacks();
+            stackMonitor.ForceCheckAllNailedCoins();
+        }
+        else
+        {
+            Debug.LogError("StackMonitor reference not assigned in GridAndCoinGenerator!");
+        }
+    }
+
+    // Your existing GenerateGrid method stays the same
     private void GenerateGrid()
     {
         cellLookup.Clear();
@@ -66,6 +91,7 @@ public class GridAndCoinGenerator : MonoBehaviour
         }
     }
 
+    // Your existing GenerateCoins method stays the same
     private void GenerateCoins()
     {
         foreach (var cellCoin in levelData.cellCoins)
@@ -83,7 +109,6 @@ public class GridAndCoinGenerator : MonoBehaviour
             {
                 if (coin == null) continue;
 
-                //int coinIndex = Mathf.Clamp((int)coin.type, 0, coinPrefabs.Length - 1);
                 GameObject prefab = coinPrefab;
                 Vector3 spawnPos = cellTransform.position + new Vector3(0f, currentYOffset, 0f);
 
@@ -102,7 +127,6 @@ public class GridAndCoinGenerator : MonoBehaviour
                 }
 
                 currentYOffset += stackOffsetY;
-
                 levelManager.RegisterCoin();
             }
         }
@@ -124,7 +148,6 @@ public class GridAndCoinGenerator : MonoBehaviour
         }
     }
 
-    // Optional helper to get color outside
     public Color GetCoinColor(CoinType type)
     {
         int index = Mathf.Clamp((int)type, 0, coinColors.Length - 1);

@@ -21,20 +21,32 @@ MonoBehaviour:
   - gridPosition: {x: 0, y: 0}
     coins:
     - type: 0
+      variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 1, y: 0}
     coins:
     - type: 1
+      variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 2, y: 0}
     coins:
     - type: 0
+      variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 0, y: 1}
     coins:
     - type: 1
+      variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 1, y: 1}
     coins:
     - type: 0
+      variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 2, y: 1}
     coins:
     - type: 1
+      variant: 0
+      unlockDirections: 0
   bounusCoinCount: 10
   gridOffset: {x: -1.5, y: 0, z: -2}

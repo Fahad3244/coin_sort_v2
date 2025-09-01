@@ -7,14 +7,23 @@ public class InputManager : MonoBehaviour
     public LevelManager levelManager;
 
     [Header("DOTween Settings")]
-    public float moveDuration = 0.8f;     // time to reach the slot
-    public float jumpPower = 1f;          // height of the jump
-    public int jumpNum = 1;               // number of jumps
-    public Ease moveEase = Ease.InOutQuad;           // ease of movement (optional, can use Ease.InOutQuad)
+    public float moveDuration = 0.8f;
+    public float jumpPower = 1f;
+    public int jumpNum = 1;
+    public Ease moveEase = Ease.InOutQuad;
 
-    /// <summary>
-    /// Called when user clicks/touches a coin
-    /// </summary>
+    private void Start()
+    {
+        // Subscribe to stack empty events for additional feedback
+        StackMonitor.OnStackEmpty += OnStackBecameEmpty;
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe to prevent memory leaks
+        StackMonitor.OnStackEmpty -= OnStackBecameEmpty;
+    }
+
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -34,6 +43,26 @@ public class InputManager : MonoBehaviour
 
     private void TryMoveCoin(Coin coin)
     {
+        // Check if this coin is nailed and cannot be moved
+        if (coin.variant == CoinVariant.Nailed)
+        {
+            Debug.Log("❌ Cannot move nailed coin! It needs to be unlocked first.");
+            
+            // Optional: Add some visual feedback for trying to move a nailed coin
+            coin.transform.DOPunchRotation(Vector3.forward * 10f, 0.3f, 1, 0.5f);
+            
+            return; // Early exit for nailed coins
+        }
+        if (coin.variant == CoinVariant.Locked)
+        {
+            Debug.Log("❌ Cannot move nailed coin! It needs to be unlocked first.");
+            
+            // Optional: Add some visual feedback for trying to move a nailed coin
+            coin.transform.DOPunchRotation(Vector3.forward * 10f, 0.3f, 1, 0.5f);
+            
+            return; // Early exit for nailed coins
+        }
+
         bool matched = false;
 
         coin.CheckAndEnableCoinBelow();
@@ -52,7 +81,7 @@ public class InputManager : MonoBehaviour
             {
                 MoveCoinToSlot(coin, levelManager.slots[i].transform);
                 matched = true;
-                break; // stop after first match
+                break;
             }
         }
 
@@ -64,26 +93,32 @@ public class InputManager : MonoBehaviour
         coin.CheckForSpecialBehaviorOnCoinMove();
     }
 
-
     private void MoveCoinToSlot(Coin coin, Transform slotTransform)
     {
-        // Optional: stop any previous tweens
-        coin.transform.DOKill();
+        // 🎯 CRITICAL: Register coin removal BEFORE starting the movement
+        if (StackMonitor.Instance != null)
+        {
+            StackMonitor.Instance.RegisterCoinRemoval(coin);
+        }
+        else
+        {
+            Debug.LogWarning("StackMonitor.Instance is null! Nailed coins won't be unlocked.");
+        }
 
+        coin.transform.DOKill();
         coin.transform.DORotate(new Vector3(90, 0, 0), moveDuration).SetEase(Ease.InCubic);
 
-        // Use DOJump for jump effect
         coin.transform.DOJump(
-            slotTransform.position,      // end position
-            jumpPower,    // jump height
-            jumpNum,      // number of jumps
-            moveDuration  // duration
+            slotTransform.position,
+            jumpPower,
+            jumpNum,
+            moveDuration
         ).SetEase(moveEase).OnComplete(() =>
         {
             Vector3 screenPos = Camera.main.WorldToScreenPoint(slotTransform.position);
             UiManager.instance.UpdateCoinCount(screenPos, coin.value);
             slotTransform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f).SetEase(Ease.OutBack);
-            Destroy(coin.gameObject); // remove coin after reaching slot
+            Destroy(coin.gameObject);
             levelManager.UnregisterCoin();
             Slot slot = slotTransform.GetComponent<Slot>();
             slot?.PlayEffect();
@@ -92,6 +127,48 @@ public class InputManager : MonoBehaviour
 
     private void MoveCoinToTray(Coin coin)
     {
+        // 🎯 CRITICAL: Register coin removal BEFORE moving to tray
+        if (StackMonitor.Instance != null)
+        {
+            StackMonitor.Instance.RegisterCoinRemoval(coin);
+        }
+        else
+        {
+            Debug.LogWarning("StackMonitor.Instance is null! Nailed coins won't be unlocked.");
+        }
+
         levelManager.tray.AddCoin(coin);
+    }
+
+    /// <summary>
+    /// Called when a stack becomes empty (optional additional feedback)
+    /// </summary>
+    private void OnStackBecameEmpty(Vector2Int gridPosition)
+    {
+        Debug.Log($"🎉 Stack at grid position {gridPosition} became empty! Checking for unlocks...");
+        
+        // Optional: Add visual effects, sound, or UI feedback when a stack becomes empty
+        // For example, you could spawn a particle effect at the empty position
+        
+        // You could also trigger other game mechanics here, like:
+        // - Award bonus points for clearing a stack
+        // - Update UI to show progress
+        // - Play a special sound effect
+    }
+
+    /// <summary>
+    /// Debug method to manually trigger stack monitoring debug
+    /// </summary>
+    [ContextMenu("Debug Stack Monitor")]
+    private void DebugStackMonitor()
+    {
+        if (StackMonitor.Instance != null)
+        {
+            StackMonitor.Instance.DebugPrintAllStacks();
+        }
+        else
+        {
+            Debug.LogError("StackMonitor.Instance is null!");
+        }
     }
 }

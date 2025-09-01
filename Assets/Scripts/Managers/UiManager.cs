@@ -29,7 +29,7 @@ public class UiManager : MonoBehaviour
 
     void Start()
     {
-        if (levelManager.GetCurrentLevelIndext() == 0)
+        if (levelManager.GetCurrentLevelIndex() == 0)
         {
             tutorialPanel.SetActive(true);
         }

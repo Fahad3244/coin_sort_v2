@@ -89,7 +89,6 @@ public class Coin : MonoBehaviour
             if (lockObject != null)
             {
                 lockObject.SetActive(true);
-                coinCollider.enabled = false; // Disable collider until unlocked
             }
         }
         else if (variant == CoinVariant.keyCoin)
@@ -105,8 +104,6 @@ public class Coin : MonoBehaviour
         {
             if (nail != null)
                 nail.SetActive(true);
-
-            coinCollider.enabled = false; // Disable collider until unlocked
 
             // Example usage:
             if ((unlockDirections & UnlockDirection.Up) != 0)

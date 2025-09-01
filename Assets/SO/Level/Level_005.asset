@@ -12,98 +12,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aea03227b5d3d424cb6b5ba44c8ce38b, type: 3}
   m_Name: Level_005
   m_EditorClassIdentifier: 
-  slotTypes: 0000000002000000
-  gridWidth: 3
-  gridHeight: 3
+  slotTypes: 04000000
+  gridWidth: 2
+  gridHeight: 4
   cellSpacing: {x: 1.5, y: 1.5}
-  disabledCells: []
+  disabledCells:
+  - {x: 0, y: 0}
+  - {x: 0, y: 1}
+  - {x: 0, y: 2}
   cellCoins:
-  - gridPosition: {x: 0, y: 0}
+  - gridPosition: {x: 0, y: 4}
     coins:
-    - type: 3
-      variant: 0
-      unlockDirections: 0
-    - type: 5
-      variant: 0
-      unlockDirections: 0
-    - type: 3
-      variant: 0
-      unlockDirections: 0
-  - gridPosition: {x: 0, y: 1}
-    coins:
-    - type: 2
-      variant: 4
-      unlockDirections: 0
-    - type: 3
-      variant: 0
-      unlockDirections: 0
-    - type: 6
-      variant: 0
-      unlockDirections: 0
-  - gridPosition: {x: 0, y: 2}
-    coins:
-    - type: 1
-      variant: 4
-      unlockDirections: 0
-    - type: 4
-      variant: 0
-      unlockDirections: 0
     - type: 3
       variant: 0
       unlockDirections: 0
   - gridPosition: {x: 1, y: 0}
     coins:
-    - type: 3
-      variant: 0
-      unlockDirections: 0
-    - type: 3
+    - type: 4
       variant: 0
       unlockDirections: 0
     - type: 1
-      variant: 3
+      variant: 0
       unlockDirections: 0
   - gridPosition: {x: 1, y: 1}
     coins:
-    - type: 2
+    - type: 1
       variant: 0
       unlockDirections: 0
-    - type: 4
+    - type: 1
+      variant: 0
+      unlockDirections: 0
+    - type: 3
       variant: 0
       unlockDirections: 0
   - gridPosition: {x: 1, y: 2}
     coins:
-    - type: 3
+    - type: 1
       variant: 0
       unlockDirections: 0
-    - type: 4
-      variant: 1
-      unlockDirections: 0
-    - type: 2
+    - type: 1
       variant: 2
-      unlockDirections: 14
-  - gridPosition: {x: 2, y: 0}
+      unlockDirections: 3
+  - gridPosition: {x: 1, y: 3}
     coins:
-    - type: 3
-      variant: 0
-      unlockDirections: 0
-    - type: 1
-      variant: 0
-      unlockDirections: 0
     - type: 2
-      variant: 1
-      unlockDirections: 0
-  - gridPosition: {x: 2, y: 1}
-    coins:
-    - type: 3
       variant: 0
       unlockDirections: 0
-  - gridPosition: {x: 2, y: 2}
-    coins:
+    - type: 3
+      variant: 0
+      unlockDirections: 3
     - type: 1
-      variant: 0
-      unlockDirections: 0
-    - type: 3
-      variant: 3
-      unlockDirections: 0
-  bounusCoinCount: 50
-  gridOffset: {x: -1.5, y: 0, z: -2}
+      variant: 2
+      unlockDirections: 10
+  bounusCoinCount: 0
+  gridOffset: {x: -0.7, y: 0, z: -3}

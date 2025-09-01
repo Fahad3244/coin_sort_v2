@@ -2138,6 +2138,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 411878900}
   m_CullTransparentMesh: 1
+--- !u!1 &422679059
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 422679061}
+  - component: {fileID: 422679060}
+  m_Layer: 0
+  m_Name: StackMonitor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &422679060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422679059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1947f3901a3214babe6a304b6ae0b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nailRemovalSound: {fileID: 0}
+  nailRemovalParticles: {fileID: 0}
+  nailAnimationStyle: 1
+--- !u!4 &422679061
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422679059}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.812698, y: 0.48807353, z: -0.17962816}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &426355442
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5290,6 +5337,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 03b91ae75f6db3f44b504d273715b341, type: 2}
   - {fileID: 11400000, guid: d3a043e93a893224ba8ca1d0871db5cb, type: 2}
   - {fileID: 11400000, guid: fe6b0300965fc1a41acfa10f47372910, type: 2}
+  - {fileID: 11400000, guid: 4c59c599927b9644087c83843e2e263f, type: 2}
   - {fileID: 11400000, guid: 9912abd7e4553d646a56e45cef977585, type: 2}
   currentLevel: {fileID: 11400000, guid: a834c340e71afa0478eeccb4ea63a011, type: 2}
   slots:
@@ -5298,6 +5346,7 @@ MonoBehaviour:
   - {fileID: 2076113257}
   - {fileID: 1735828317}
   tray: {fileID: 1316445168}
+  stackMonitor: {fileID: 0}
   enableAutoMatch: 1
   autoMatchDelay: 0
   autoMatchMoveDuration: 0.4
@@ -6381,6 +6430,7 @@ MonoBehaviour:
   - {r: 0.72316533, g: 0.0039215684, b: 1, a: 1}
   - {r: 0.21025492, g: 0.0039215684, b: 1, a: 1}
   - {r: 0.0039215684, g: 0.7966138, b: 1, a: 1}
+  stackMonitor: {fileID: 422679060}
 --- !u!1 &1413965013
 GameObject:
   m_ObjectHideFlags: 0
@@ -9650,6 +9700,7 @@ SceneRoots:
   - {fileID: 1636929703}
   - {fileID: 1766097977}
   - {fileID: 1382375982}
+  - {fileID: 422679061}
   - {fileID: 744304752}
   - {fileID: 1060880049}
   - {fileID: 2072418549}

@@ -5,16 +5,21 @@ using DG.Tweening;
 public class LevelManager : MonoBehaviour
 {
     public GridAndCoinGenerator gridAndCoinGenerator;
+    
     [Header("Level Data")]
     public List<LevelData> levels = new List<LevelData>();
     public LevelData currentLevel;
-    private const string CASH_KEY = "ActiveLevel";
+    private const string LEVEL_KEY = "ActiveLevel"; // Fixed typo from "CASH_KEY"
     private int activeCoins;
 
     [Header("Slot References")]
     public Slot[] slots; // length can be 3 (max slots)
+    
     [Header("Tray Reference")]
     public Tray tray;   // reference to tray
+
+    [Header("Stack Monitor Integration")]
+    public StackMonitor stackMonitor; // Reference to StackMonitor for approach 1
 
     [Header("Auto-Match Settings")]
     [Tooltip("Enable automatic matching of tray coins to slots")]
@@ -39,23 +44,48 @@ public class LevelManager : MonoBehaviour
 
     void LoadLevel()
     {
-        int levelIndex = (debugLevelIndex >= 0) ? debugLevelIndex : GetCurrentLevelIndext();
+        // Fixed bounds checking
+        int levelIndex = (debugLevelIndex >= 0) ? debugLevelIndex : GetCurrentLevelIndex();
+        
+        // Ensure level index is within bounds
+        if (levelIndex >= levels.Count || levelIndex < 0)
+        {
+            Debug.LogWarning($"Level index {levelIndex} out of bounds. Using level 0.");
+            levelIndex = 0;
+        }
+
+        if (levels.Count == 0)
+        {
+            Debug.LogError("No levels assigned to LevelManager!");
+            return;
+        }
 
         currentLevel = levels[levelIndex];
-        SetupSlots();
-
-        if (levelIndex == 0) (tray.gameObject).SetActive(false);
-        else (tray.gameObject).SetActive(true);
+        
+        // Show/hide tray based on level
+        if (tray != null)
+        {
+            tray.gameObject.SetActive(levelIndex != 0);
+        }
     }
 
     private void Start()
     {
         SetupSlots();
+        
+        // Initialize StackMonitor after a small delay to ensure all coins are generated
+        if (stackMonitor != null && currentLevel != null)
+        {
+            DOVirtual.DelayedCall(0.1f, () => {
+                stackMonitor.Initialize(currentLevel);
+                Debug.Log("StackMonitor initialized from LevelManager");
+            });
+        }
     }
 
     public float GetBonusCoins()
     {
-        return currentLevel.bounusCoinCount;
+        return currentLevel != null ? currentLevel.bounusCoinCount : 0f;
     }
 
     /// <summary>
@@ -63,9 +93,25 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     private void SetupSlots()
     {
-        for (int i = 0; i < currentLevel.slotTypes.Count; i++)
+        if (currentLevel == null)
         {
-            if (slots[i] == null) continue;
+            Debug.LogError("CurrentLevel is null in SetupSlots!");
+            return;
+        }
+
+        if (gridAndCoinGenerator == null)
+        {
+            Debug.LogError("GridAndCoinGenerator reference is null!");
+            return;
+        }
+
+        for (int i = 0; i < currentLevel.slotTypes.Count && i < slots.Length; i++)
+        {
+            if (slots[i] == null) 
+            {
+                Debug.LogWarning($"Slot {i} is null!");
+                continue;
+            }
 
             SlotType slotType = currentLevel.slotTypes[i];
 
@@ -91,7 +137,9 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public bool MatchesSlot(CoinType coinType)
     {
-        for (int i = 0; i < currentLevel.slotTypes.Count; i++)
+        if (currentLevel == null) return false;
+        
+        for (int i = 0; i < currentLevel.slotTypes.Count && i < slots.Length; i++)
         {
             if (slots[i] != null && slots[i].type == (SlotType)coinType)
                 return true;
@@ -105,7 +153,9 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public Slot GetMatchingSlot(CoinType coinType)
     {
-        for (int i = 0; i < currentLevel.slotTypes.Count; i++)
+        if (currentLevel == null) return null;
+        
+        for (int i = 0; i < currentLevel.slotTypes.Count && i < slots.Length; i++)
         {
             if (slots[i] != null && slots[i].type == (SlotType)coinType)
                 return slots[i];
@@ -138,7 +188,10 @@ public class LevelManager : MonoBehaviour
         if (matchingSlot != null)
         {
             // Remove coin from tray before moving
-            tray.RemoveCoin(coin);
+            if (tray != null)
+            {
+                tray.RemoveCoin(coin);
+            }
 
             // Move coin to slot with animation
             MoveCoinToSlot(coin, matchingSlot.transform);
@@ -150,6 +203,12 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     private void MoveCoinToSlot(Coin coin, Transform slotTransform)
     {
+        // Register coin removal with StackMonitor BEFORE moving
+        if (stackMonitor != null && StackMonitor.Instance != null)
+        {
+            StackMonitor.Instance.RegisterCoinRemoval(coin);
+        }
+
         // Optional: stop any previous tweens
         coin.transform.DOKill();
         coin.transform.DORotate(new Vector3(90, 0, 0), autoMatchMoveDuration).SetEase(Ease.InCubic);
@@ -162,8 +221,13 @@ public class LevelManager : MonoBehaviour
             autoMatchMoveDuration        // duration
         ).SetEase(autoMatchEase).OnComplete(() =>
         {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(slotTransform.position);
-            UiManager.instance.UpdateCoinCount(screenPos, coin.value);
+            // Null check for UiManager
+            if (UiManager.instance != null)
+            {
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(slotTransform.position);
+                UiManager.instance.UpdateCoinCount(screenPos, coin.value);
+            }
+
             slotTransform.DOPunchScale(Vector3.one * 0.3f, 0.2f, 1, 0.5f).SetEase(Ease.OutBack);
             Destroy(coin.gameObject); // remove coin after reaching slot
             UnregisterCoin();
@@ -175,11 +239,14 @@ public class LevelManager : MonoBehaviour
     public void RegisterCoin()
     {
         activeCoins++;
+        Debug.Log($"Coin registered. Active coins: {activeCoins}");
     }
 
     public void UnregisterCoin()
     {
         activeCoins--;
+        Debug.Log($"Coin unregistered. Active coins: {activeCoins}");
+        
         if (activeCoins <= 0)
         {
             OnBoardCleared();
@@ -188,28 +255,87 @@ public class LevelManager : MonoBehaviour
 
     private void OnBoardCleared()
     {
-        Debug.Log("Board Cleared!");
-        UiManager.instance.OnLevelWin();
+        Debug.Log("🎉 Board Cleared!");
+        if (UiManager.instance != null)
+        {
+            UiManager.instance.OnLevelWin();
+        }
+        else
+        {
+            Debug.LogWarning("UiManager.instance is null in OnBoardCleared!");
+        }
     }
 
     public void SetCurrentLevelIndex(int index)
     {
-        PlayerPrefs.SetInt(CASH_KEY, index);
+        PlayerPrefs.SetInt(LEVEL_KEY, index);
         PlayerPrefs.Save();
+        Debug.Log($"Level index set to: {index}");
     }
 
-    public int GetCurrentLevelIndext()
+    public int GetCurrentLevelIndex() // Fixed typo in method name
     {
-        return PlayerPrefs.GetInt(CASH_KEY, 0);
+        return PlayerPrefs.GetInt(LEVEL_KEY, 0);
     }
     
     public void LoadNextLevel()
     {
-        int nextIndex = GetCurrentLevelIndext() + 1;
+        int nextIndex = GetCurrentLevelIndex() + 1;
         if (nextIndex >= levels.Count)
+        {
             nextIndex = 0; // loop back to first level or clamp
+            Debug.Log("Reached end of levels, looping back to level 0");
+        }
 
         SetCurrentLevelIndex(nextIndex);
+        Debug.Log($"Loading next level: {nextIndex}");
+        
+        // Reload the scene or reinitialize
+        // UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    // Event subscription for StackMonitor (optional)
+    private void OnEnable()
+    {
+        StackMonitor.OnStackEmpty += OnStackBecameEmpty;
+    }
+
+    private void OnDisable()
+    {
+        StackMonitor.OnStackEmpty -= OnStackBecameEmpty;
+    }
+
+    private void OnStackBecameEmpty(Vector2Int gridPosition)
+    {
+        Debug.Log($"🎊 LevelManager: Stack at {gridPosition} became empty!");
+        // Add any game-specific logic here
+    }
+
+    // Debug methods
+    [ContextMenu("Debug Active Coins")]
+    private void DebugActiveCoins()
+    {
+        Debug.Log($"Active coins: {activeCoins}");
+    }
+
+    [ContextMenu("Force Board Clear")]
+    private void ForceboardClear()
+    {
+        activeCoins = 0;
+        OnBoardCleared();
+    }
+
+    [ContextMenu("Debug Stack Monitor")]
+    public void DebugStackMonitor()
+    {
+        if (stackMonitor != null)
+        {
+            stackMonitor.DebugPrintAllStacks();
+        }
+        else
+        {
+            Debug.LogError("StackMonitor reference is null!");
+        }
     }
 }
 
@@ -227,6 +353,7 @@ public enum CoinType
     FiveHundred,
     OneThousand
 }
+
 public enum SlotType
 {
     Half,     // 0.5
