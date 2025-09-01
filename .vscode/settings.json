@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "coin_sort_v2.sln"
+    "dotnet.defaultSolution": "coinsaver.sln"
 }

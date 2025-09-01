@@ -5303,7 +5303,7 @@ MonoBehaviour:
   autoMatchMoveDuration: 0.4
   autoMatchJumpPower: 6
   autoMatchEase: 20
-  debugLevelIndex: -1
+  debugLevelIndex: 4
 --- !u!4 &1032273594
 Transform:
   m_ObjectHideFlags: 0

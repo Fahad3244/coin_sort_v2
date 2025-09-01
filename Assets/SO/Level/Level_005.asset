@@ -22,65 +22,88 @@ MonoBehaviour:
     coins:
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 5
       variant: 0
+      unlockDirections: 0
     - type: 3
       variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 0, y: 1}
     coins:
     - type: 2
       variant: 4
+      unlockDirections: 0
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 6
       variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 0, y: 2}
     coins:
     - type: 1
       variant: 4
+      unlockDirections: 0
     - type: 4
       variant: 0
+      unlockDirections: 0
     - type: 3
       variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 1, y: 0}
     coins:
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 1
       variant: 3
+      unlockDirections: 0
   - gridPosition: {x: 1, y: 1}
     coins:
     - type: 2
       variant: 0
+      unlockDirections: 0
     - type: 4
       variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 1, y: 2}
     coins:
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 4
       variant: 1
+      unlockDirections: 0
     - type: 2
-      variant: 0
+      variant: 2
+      unlockDirections: 14
   - gridPosition: {x: 2, y: 0}
     coins:
     - type: 3
       variant: 0
+      unlockDirections: 0
     - type: 1
       variant: 0
+      unlockDirections: 0
     - type: 2
       variant: 1
+      unlockDirections: 0
   - gridPosition: {x: 2, y: 1}
     coins:
     - type: 3
       variant: 0
+      unlockDirections: 0
   - gridPosition: {x: 2, y: 2}
     coins:
     - type: 1
       variant: 0
+      unlockDirections: 0
     - type: 3
       variant: 3
+      unlockDirections: 0
   bounusCoinCount: 50
   gridOffset: {x: -1.5, y: 0, z: -2}

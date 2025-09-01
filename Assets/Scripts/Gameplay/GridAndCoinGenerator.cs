@@ -96,7 +96,8 @@ public class GridAndCoinGenerator : MonoBehaviour
                         coin.type,
                         coin.variant,
                         GetCoinValue(coin.type),
-                        GetCoinColor(coin.type)
+                        GetCoinColor(coin.type),
+                        coin.unlockDirections
                     );
                 }
 

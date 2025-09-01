@@ -340,7 +340,7 @@ public class Tray : MonoBehaviour
         levelManager?.RegisterCoin();
         float mergedValue = gridAndCoinGenerator.GetCoinValue(outputType);
         Color mergedColor = gridAndCoinGenerator.GetCoinColor(outputType);
-        mergedCoin.SetupCoin(outputType,CoinVariant.Normal, mergedValue, mergedColor);
+        mergedCoin.SetupCoin(outputType,CoinVariant.Normal, mergedValue, mergedColor,UnlockDirection.None);
         
         // Position the merged coin at elevated merge position and make it invisible
         mergedCoin.transform.position = mergePosition;

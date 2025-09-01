@@ -27,9 +27,13 @@ public class Coin : MonoBehaviour
     [Header("Objects")]
     public GameObject lockObject;
     private Collider coinCollider;
+    public GameObject nail;
     private GameObject key;
     [Header("Prefabs")]
     public GameObject keyPrefab;
+
+    [ConditionalField("variant", CoinVariant.Nailed)]
+    public UnlockDirection unlockDirections = UnlockDirection.None;
 
     void OnEnable()
     {
@@ -39,8 +43,14 @@ public class Coin : MonoBehaviour
     /// <summary>
     /// Initialize the coin with type, value, and color
     /// </summary>
-    public void SetupCoin(CoinType newType, CoinVariant newVariant, float newValue, Color newColor)
+    public void SetupCoin(CoinType newType, CoinVariant newVariant, float newValue, Color newColor, UnlockDirection newUnlockDirection)
     {
+    type = newType;
+    variant = newVariant;
+    value = newValue;
+    color = newColor;
+    unlockDirections = newUnlockDirection; // 👈 copy from data
+
         type = newType;
         variant = newVariant;
         value = newValue;
@@ -93,8 +103,22 @@ public class Coin : MonoBehaviour
         }
         else if (variant == CoinVariant.Nailed)
         {
-            
+            if (nail != null)
+                nail.SetActive(true);
+
+            coinCollider.enabled = false; // Disable collider until unlocked
+
+            // Example usage:
+            if ((unlockDirections & UnlockDirection.Up) != 0)
+            {
+                Debug.Log("This coin can be unlocked from above");
+            }
+            if ((unlockDirections & UnlockDirection.Left) != 0)
+            {
+                Debug.Log("This coin can be unlocked from the left");
+            }
         }
+
 
         // 🔎 Check for another Coin below this one
         CheckAndDisableCoinBelow();
@@ -129,8 +153,9 @@ public class Coin : MonoBehaviour
 
         if (nearestLockedCoin != null)
         {
+            key.transform.DORotate(new Vector3(0, 90, -90), 1f);
             // Move the key to the locked coin's position
-            key.transform.DOJump(nearestLockedCoin.transform.position, 4f,1,1f).SetEase(Ease.InOutSine).OnComplete(() =>
+            key.transform.DOJump(nearestLockedCoin.transform.position, 4f,1,1f).SetEase(Ease.InOutExpo).OnComplete(() =>
             {
                 // Unlock the locked coin
                 nearestLockedCoin.UnlockCoin();
@@ -155,11 +180,15 @@ public class Coin : MonoBehaviour
     {
         if (lockObject != null)
         {
-            lockObject.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
+            lockObject.GetComponent<Animator>().enabled = true;
+            DOVirtual.DelayedCall(0.3f, () =>
             {
-                lockObject.SetActive(false);
-                coinCollider.enabled = true; // Enable collider when unlocked
-                variant = CoinVariant.Normal; // Change variant to normal after unlocking
+                lockObject.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
+                {
+                    lockObject.SetActive(false);
+                    coinCollider.enabled = true; // Enable collider when unlocked
+                    variant = CoinVariant.Normal; // Change variant to normal after unlocking
+                });
             });
         }
     }
