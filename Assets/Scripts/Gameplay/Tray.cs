@@ -378,29 +378,53 @@ public class Tray : MonoBehaviour
                         ParticleSystem effect = LeanPool.Spawn(effectsManager.mergeEffect, mergedCoin.transform.position, Quaternion.identity);
                         Destroy(effect.gameObject, effect.main.duration);
                         // Show the merged coin with a pop animation
+                        // Show the merged coin with a pop animation
                         mergedCoin.transform.DOScale(Vector3.one, 0.3f)
                             .SetEase(Ease.OutBack)
                             .OnComplete(() =>
                             {
-                                // Add the merged coin to the tray normally (no jump animation)
+                                // Calculate where the coin should go in the tray
+                                Vector3 targetTrayPosition;
+                                
                                 if (levelManager.MatchesSlot(mergedCoin.type))
                                 {
-                                    // If it matches a slot, auto-move it there
+                                    // If it matches a slot, auto-move it there (existing logic)
                                     levelManager.OnCoinAddedToTray(mergedCoin);
                                 }
                                 else
                                 {
-                                    AddCoinDirectly(mergedCoin);
+                                    // Calculate the target position in the tray
+                                    int insertIndex;
+                                    if (groupSameTypes)
+                                    {
+                                        insertIndex = layout.GetInsertIndexForType(mergedCoin.type);
+                                    }
+                                    else
+                                    {
+                                        insertIndex = layout.GetValidChildCount();
+                                    }
+                                    
+                                    targetTrayPosition = layout.GetWorldPositionForInsertIndex(insertIndex);
+                                    
+                                    // Animate the merged coin to the tray position
+                                    mergedCoin.transform.DOJump(targetTrayPosition, jumpPower * 0.7f, 1, moveDuration * 0.8f)
+                                        .SetEase(Ease.OutQuad)
+                                        .OnComplete(() =>
+                                        {
+                                            // Now add it directly to the tray (without animation since it's already in position)
+                                            AddCoinDirectly(mergedCoin);
+
+                                            // Notify LevelManager about the merged coin for auto-matching
+                                            if (levelManager != null)
+                                            {
+                                                levelManager.OnCoinAddedToTray(mergedCoin);
+                                            }
+                                            // Check for more merges after a short delay
+                                            DOVirtual.DelayedCall(0.1f, () => CheckForMerges());
+                                        });
                                 }
 
-                                // Notify LevelManager about the merged coin for auto-matching
-                                if (levelManager != null)
-                                {
-                                    levelManager.OnCoinAddedToTray(mergedCoin);
-                                }
-
-                                // Check for more merges after a short delay
-                                DOVirtual.DelayedCall(0.1f, () => CheckForMerges());
+                                
                             });
                     }
                 });

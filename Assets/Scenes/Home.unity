@@ -5346,13 +5346,13 @@ MonoBehaviour:
   - {fileID: 2076113257}
   - {fileID: 1735828317}
   tray: {fileID: 1316445168}
-  stackMonitor: {fileID: 0}
+  stackMonitor: {fileID: 422679060}
   enableAutoMatch: 1
   autoMatchDelay: 0
   autoMatchMoveDuration: 0.4
   autoMatchJumpPower: 6
   autoMatchEase: 20
-  debugLevelIndex: 4
+  debugLevelIndex: 5
 --- !u!4 &1032273594
 Transform:
   m_ObjectHideFlags: 0

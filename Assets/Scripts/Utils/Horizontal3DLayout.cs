@@ -72,26 +72,26 @@ public class HorizontalLayout3D : MonoBehaviour
 
             // Animate if either animateChildren is true OR we're shifting for insertion and alwaysAnimateShifts is true
             bool shouldAnimate = (animateChildren || (_isShiftingForInsertion && alwaysAnimateShifts)) && moveSpeed > 0f;
-            
+
             if (shouldAnimate)
             {
                 float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
                 bool anyMoving = false;
-                
+
                 foreach (var kv in _targets)
                 {
                     Transform t = kv.Key;
                     if (!t) continue;
-                    
+
                     Vector3 oldPos = t.localPosition;
                     t.localPosition = Vector3.MoveTowards(t.localPosition, kv.Value, moveSpeed * dt);
-                    
+
                     if (Vector3.Distance(t.localPosition, kv.Value) > 0.01f)
                     {
                         anyMoving = true;
                     }
                 }
-                
+
                 // If no coins are moving, we're done shifting
                 if (!anyMoving)
                 {
@@ -176,7 +176,7 @@ public class HorizontalLayout3D : MonoBehaviour
             // --- SNAP or ANIMATE ---
             bool shouldAnimateEntry = animateChildren && Application.isPlaying && moveSpeed > 0f;
             bool shouldAnimateShift = alwaysAnimateShifts && Application.isPlaying && moveSpeed > 0f && _isShiftingForInsertion;
-            
+
             if (!Application.isPlaying || (!shouldAnimateEntry && !shouldAnimateShift))
             {
                 // always snap instantly in Edit Mode or when animation disabled
@@ -290,9 +290,9 @@ public class HorizontalLayout3D : MonoBehaviour
     {
         int currentChildCount = GetValidChildCount();
         int totalCountAfterInsert = currentChildCount + _pendingCoinsCount;
-        
+
         Vector3 dir = direction.sqrMagnitude > 1e-8f ? direction.normalized : Vector3.right;
-        
+
         // Calculate layout parameters for the final state (including the new coin)
         int finalTotalCount = totalCountAfterInsert + 1;
         float contentLength = spacing * (finalTotalCount - 1);
@@ -315,4 +315,5 @@ public class HorizontalLayout3D : MonoBehaviour
         Vector3 localTarget = startOffset + dir * (insertIndex * spacing);
         return transform.TransformPoint(localTarget);
     }
+    
 }
